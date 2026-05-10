@@ -1,0 +1,47 @@
+title = "Corporate Reference Audit"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "corp-deloitte"
+description = "Deloitte reference"
+regex = '''(?i)(deloitte)'''
+tags = ["corporate"]
+
+[[rules]]
+id = "corp-singtel"
+description = "Singtel reference"
+regex = '''(?i)(singtel)'''
+tags = ["corporate"]
+
+[[rules]]
+id = "corp-ncs"
+description = "NCS reference"
+regex = '''(?i)\b(ncs)\b'''
+tags = ["corporate"]
+
+[[rules]]
+id = "corp-email"
+description = "Corporate email address"
+regex = '''[a-zA-Z0-9._%+\-]+@(deloitte|singtel|optus|ncs|nxera|vantagepointsg|vantagepoint)\.(com|net|sg|com\.au)'''
+tags = ["corporate", "email"]
+
+[[rules]]
+id = "internal-ip-rfc1918"
+description = "Non-standard RFC-1918 address"
+regex = '''(10\.(?:2[0-4]\d|25[0-5]|[01]?\d\d?)\.(?:2[0-4]\d|25[0-5]|[01]?\d\d?)\.(?:2[0-4]\d|25[0-5]|[01]?\d\d?)|172\.(?:1[6-9]|2\d|3[01])\.(?:2[0-4]\d|25[0-5]|[01]?\d\d?)\.(?:2[0-4]\d|25[0-5]|[01]?\d\d?)|192\.168\.(?:2[0-4]\d|25[0-5]|[01]?\d\d?)\.(?:2[0-4]\d|25[0-5]|[01]?\d\d?))'''
+tags = ["infrastructure"]
+
+[[rules]]
+id = "local-abs-path"
+description = "Absolute local user path"
+regex = '''(/Users/[a-zA-Z][a-zA-Z0-9_\-]+/|C:\\Users\\[a-zA-Z][a-zA-Z0-9_\-]+\\|/home/[a-zA-Z][a-zA-Z0-9_\-]+/)'''
+tags = ["path"]
+
+[allowlist]
+regexes = [
+  '''192\.168\.(1|0)\.(1|10|100|200)''',
+  '''10\.0\.0\.(0|1|24)''',
+  '''172\.16\.0\.(0|24)''',
+]
