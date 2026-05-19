@@ -88,6 +88,19 @@ namespace QueueUserAPC
             IntPtr hThread,
             uint dwData);
 
+        /// <summary>
+        /// Undocumented NTDLL function — queues an APC without the Win32 alertable-state
+        /// requirement. Useful when the target thread is suspended (CREATE_SUSPENDED) as it
+        /// does not need to enter an alertable wait before the APC fires on ResumeThread.
+        /// </summary>
+        [DllImport("ntdll.dll")]
+        public static extern uint NtQueueApcThread(
+            IntPtr ThreadHandle,
+            IntPtr ApcRoutine,
+            IntPtr ApcArgument1,
+            IntPtr ApcArgument2,
+            IntPtr ApcArgument3);
+
         [DllImport("kernel32.dll")]
         public static extern uint ResumeThread(
             IntPtr hThread);
