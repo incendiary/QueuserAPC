@@ -66,4 +66,37 @@ public class ProgramTests
     {
         Assert.True(Program.ParseUseNt(["--NT", "http://192.168.1.10/payload.bin"]));
     }
+
+    // --- ParseUseEarlyBird ---
+
+    [Fact]
+    public void ParseUseEarlyBird_NoFlag_ReturnsFalse()
+    {
+        Assert.False(Program.ParseUseEarlyBird(["http://192.168.1.10/payload.bin"]));
+    }
+
+    [Fact]
+    public void ParseUseEarlyBird_WithFlag_ReturnsTrue()
+    {
+        Assert.True(Program.ParseUseEarlyBird(["--early-bird", "http://192.168.1.10/payload.bin"]));
+    }
+
+    [Fact]
+    public void ParseUseEarlyBird_FlagCaseInsensitive_ReturnsTrue()
+    {
+        Assert.True(Program.ParseUseEarlyBird(["--EARLY-BIRD", "http://192.168.1.10/payload.bin"]));
+    }
+
+    [Fact]
+    public void ParseUrl_EarlyBirdFlagSkipped_ReturnsUrl()
+    {
+        const string url = "http://192.168.1.10/payload.bin";
+        Assert.Equal(url, Program.ParseUrl(["--early-bird", url]));
+    }
+
+    [Fact]
+    public void ParseUseNt_NotSetWhenEarlyBirdPresent()
+    {
+        Assert.False(Program.ParseUseNt(["--early-bird", "http://192.168.1.10/payload.bin"]));
+    }
 }
