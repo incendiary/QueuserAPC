@@ -90,6 +90,7 @@ Hooks run automatically on `git commit`:
 | Hook | Purpose |
 |---|---|
 | **gitleaks** | Detects secrets and credentials before they enter history |
+| **detect-secrets** | Validates no new secrets against `.secrets.baseline` |
 | **dotnet format** | Enforces `.editorconfig` conventions |
 | **trailing-whitespace** | Strips trailing whitespace |
 | **end-of-file-fixer** | Ensures files end with a newline |
@@ -108,6 +109,8 @@ Hooks run automatically on `git commit`:
 | 6 | ⬜ Planned | Add optional XOR/RC4 shellcode decryption stage |
 | 7 | ✅ Done | CI workflow (GitHub Actions) — secret scan + build + format check on push |
 | 8 | ✅ Done | xUnit test project — CLI argument validation and URL guard (Win32 calls are integration-level and excluded) |
+| 9 | ✅ Done | detect-secrets baseline (`.secrets.baseline`) + pre-commit hook + CI step |
+| 10 | ✅ Done | CI matrix build for both Debug and Release configurations |
 
 ---
 
